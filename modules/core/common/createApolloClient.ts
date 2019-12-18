@@ -9,12 +9,13 @@ import { LoggingLink } from 'apollo-logger';
 import { SubscriptionClient, ConnectionParamsOptions } from 'subscriptions-transport-ws';
 import ApolloClient from 'apollo-client';
 import ApolloCacheRouter from 'apollo-cache-router';
-import { hasDirectives } from 'apollo-utilities';
+import { getMainDefinition, hasDirectives } from 'apollo-utilities';
 import { DocumentNode } from 'graphql';
 import { IResolvers } from 'graphql-tools';
 
+import settings from '@gqlapp/config';
+
 import log from './log';
-import settings from '../../../settings';
 
 interface CreateApolloClientOptions {
   apiUrl?: string;
@@ -106,9 +107,9 @@ const createApolloClient = ({
     });
 
     apiLink = ApolloLink.split(
-      operation => {
-        const operationAST = getOperationAST(operation.query, operation.operationName);
-        return !!operationAST && operationAST.operation === 'subscription';
+      ({ query }) => {
+        const definition = getMainDefinition(query);
+        return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
       },
       new WebSocketLink(wsClient),
       queryLink
@@ -129,7 +130,8 @@ const createApolloClient = ({
 
   const clientParams: any = {
     link: ApolloLink.from(allLinks),
-    cache
+    cache,
+    resolvers: (clientResolvers || ({} as any)).resolvers
   };
   if (__SSR__ && !__TEST__) {
     if (typeof window !== 'undefined' && window.__APOLLO_STATE__) {

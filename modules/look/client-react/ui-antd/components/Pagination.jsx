@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Pagination as ADPagination } from 'antd';
-import { Button } from '../components';
+
+import Button from './Button';
 
 /**
  * @return {boolean}
@@ -23,7 +24,7 @@ const Pagination = ({
             ({itemsPerPage} / {total})
           </small>
         </div>
-        <Button id="load-more" color="primary" onClick={() => handlePageChange(pagination)}>
+        <Button color="primary" onClick={() => handlePageChange(pagination)}>
           {loadMoreText}
         </Button>
       </div>

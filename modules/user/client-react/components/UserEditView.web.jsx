@@ -2,11 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router-dom';
+
 import { translate } from '@gqlapp/i18n-client-react';
 import { PageLayout } from '@gqlapp/look-client-react';
+import settings from '@gqlapp/config';
 
 import UserForm from './UserForm';
-import settings from '../../../../settings';
 
 const UserEditView = ({ loading, user, t, currentUser, onSubmit }) => {
   const isNotSelf = !user || (user && user.id !== currentUser.id);
@@ -30,9 +31,7 @@ const UserEditView = ({ loading, user, t, currentUser, onSubmit }) => {
         <div className="text-center">{t('userEdit.loadMsg')}</div>
       ) : (
         <>
-          <Link id="back-button" to={currentUser && currentUser.role === 'admin' ? '/users' : '/profile'}>
-            Back
-          </Link>
+          <Link to={currentUser && currentUser.role === 'admin' ? '/users' : '/profile'}>Back</Link>
           <h2>
             {t('userEdit.form.titleEdit')} {t('userEdit.form.title')}
           </h2>

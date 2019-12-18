@@ -1,9 +1,10 @@
 import i18n from 'i18next';
-import LanguageDetector from './LanguageDetector';
-import { reactI18nextModule } from 'react-i18next';
+import { initReactI18next } from 'react-i18next';
 
-import { PLATFORM } from '../../../packages/common/utils';
-import settings from '../../../settings';
+import { PLATFORM } from '@gqlapp/core-common';
+import settings from '@gqlapp/config';
+
+import LanguageDetector from './LanguageDetector';
 
 const I18N_CONFIG: i18n.InitOptions = {
   fallbackLng: settings.i18n.fallbackLng,
@@ -33,5 +34,5 @@ if (settings.i18n.enabled) {
     i18n.use(LanguageDetector);
   }
 
-  i18n.use(reactI18nextModule).init(I18N_CONFIG);
+  i18n.use(initReactI18next).init(I18N_CONFIG);
 }

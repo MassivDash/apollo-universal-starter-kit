@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import settings from '../../../../settings';
+import React, { useState, useEffect, useCallback } from 'react';
+
+import settings from '@gqlapp/config';
 
 const generateEdgesArray = quantity => {
   const arr = [];
@@ -15,26 +16,29 @@ const allEdges = generateEdgesArray(47);
 export const useDataProvider = () => {
   const [items, setItems] = useState(null);
 
-  useEffect(() => {
+  const loadData = useCallback(
+    (offset, dataDelivery) => {
+      const newEdges = allEdges.slice(offset, offset + itemsNumber);
+      const edges = dataDelivery === 'add' ? (!items ? newEdges : [...items.edges, ...newEdges]) : newEdges;
+      const endCursor = edges[edges.length - 1].cursor;
+      const hasNextPage = endCursor < allEdges[allEdges.length - 1].cursor;
+      setItems({
+        totalCount: allEdges.length,
+        pageInfo: {
+          endCursor: endCursor,
+          hasNextPage: hasNextPage
+        },
+        edges: edges,
+        offset: offset,
+        limit: itemsNumber
+      });
+    },
+    [items]
+  );
+  const useMountEffect = fn => useEffect(fn, []);
+  useMountEffect(() => {
     loadData(0, 'replace');
-  }, []);
-
-  const loadData = (offset, dataDelivery) => {
-    const newEdges = allEdges.slice(offset, offset + itemsNumber);
-    const edges = dataDelivery === 'add' ? (!items ? newEdges : [...items.edges, ...newEdges]) : newEdges;
-    const endCursor = edges[edges.length - 1].cursor;
-    const hasNextPage = endCursor < allEdges[allEdges.length - 1].cursor;
-    setItems({
-      totalCount: allEdges.length,
-      pageInfo: {
-        endCursor: endCursor,
-        hasNextPage: hasNextPage
-      },
-      edges: edges,
-      offset: offset,
-      limit: itemsNumber
-    });
-  };
+  });
 
   return { items, loadData };
 };

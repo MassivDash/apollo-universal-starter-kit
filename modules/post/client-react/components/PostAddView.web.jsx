@@ -2,11 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router-dom';
+
 import { translate } from '@gqlapp/i18n-client-react';
 import { PageLayout } from '@gqlapp/look-client-react';
+import settings from '@gqlapp/config';
 
 import PostForm from './PostForm';
-import settings from '../../../../settings';
 
 const onSubmit = addPost => values => {
   addPost(values.title, values.content);
@@ -27,9 +28,7 @@ const PostAddView = ({ addPost, t }) => {
   return (
     <PageLayout>
       {renderMetaData()}
-      <Link id="back-button" to="/posts">
-        {t('post.btn.back')}
-      </Link>
+      <Link to="/posts">{t('post.btn.back')}</Link>
       <h2>
         {t(`post.label.create`)} {t('post.label.post')}
       </h2>

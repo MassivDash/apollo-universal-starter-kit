@@ -4,9 +4,10 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router-dom';
+
 import { translate } from '@gqlapp/i18n-client-react';
 import { PageLayout, Table, Button, Pagination } from '@gqlapp/look-client-react';
-import settings from '../../../../settings';
+import settings from '@gqlapp/config';
 
 const { itemsNumber, type } = settings.pagination.web;
 
@@ -22,18 +23,14 @@ const PostList = ({ loading, posts, t, loadData, deletePost }) => {
       title: t('list.column.title'),
       dataIndex: 'title',
       key: 'title',
-      render: (text, record) => (
-        <Link className="post-link" to={`/post/${record.id}`}>
-          {text}
-        </Link>
-      )
+      render: (text, record) => <Link to={`/post/${record.id}`}>{text}</Link>
     },
     {
       title: t('list.column.actions'),
       key: 'actions',
       width: 50,
       render: (text, record) => (
-        <Button color="primary" size="sm" className="delete-button" onClick={() => deletePost(record.id)}>
+        <Button color="primary" size="sm" onClick={() => deletePost(record.id)}>
           {t('post.btn.del')}
         </Button>
       )

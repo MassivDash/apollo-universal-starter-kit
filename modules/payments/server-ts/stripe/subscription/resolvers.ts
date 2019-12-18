@@ -1,8 +1,9 @@
+import { ApolloError } from 'apollo-server-errors';
 import Stripe from 'stripe';
 import withAuth from 'graphql-auth';
+
 import { log } from '@gqlapp/core-common';
-import { ApolloError } from 'apollo-server-errors';
-import settings from '../../../../../settings';
+import settings from '@gqlapp/config';
 
 const { plan } = settings.stripe.subscription;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -28,13 +29,14 @@ export default () => ({
         : null;
     }),
     stripeSubscriptionCard: withAuth(['stripe:view:self'], (obj: any, args: any, context: any) => {
-      return context.StripeSubscription.getCreditCard(context.identity.id);
+      return context.StripeSubscription.getCreditCard(context.req.identity.id);
     })
   },
   Mutation: {
     addStripeSubscription: withAuth(['stripe:update:self'], async (obj: any, { input }: CreditCard, context: any) => {
       try {
-        const { identity, stripeSubscription, StripeSubscription } = context;
+        const { stripeSubscription, StripeSubscription } = context;
+        const { identity } = context.req;
         const { token, expiryMonth, expiryYear, last4, brand } = input;
         let stripeCustomerId;
         let stripeSourceId;
@@ -84,7 +86,8 @@ export default () => ({
     updateStripeSubscriptionCard: withAuth(['stripe:update:self'], async (obj: any, args: CreditCard, context: any) => {
       try {
         const { token, expiryMonth, expiryYear, last4, brand } = args.input;
-        const { StripeSubscription, identity, stripeSubscription } = context;
+        const { StripeSubscription, stripeSubscription } = context;
+        const { identity } = context.req;
 
         await stripe.customers.deleteSource(stripeSubscription.stripeCustomerId, stripeSubscription.stripeSourceId);
         const source = await stripe.customers.createSource(stripeSubscription.stripeCustomerId, { source: token });
@@ -109,10 +112,10 @@ export default () => ({
     }),
     cancelStripeSubscription: withAuth(['stripe:update:self'], async (obj: any, args: any, context: any) => {
       const {
-        identity,
         stripeSubscription: { stripeSubscriptionId, stripeCustomerId, stripeSourceId },
         StripeSubscription
       } = context;
+      const identity = context.req;
 
       try {
         await stripe.subscriptions.del(stripeSubscriptionId);

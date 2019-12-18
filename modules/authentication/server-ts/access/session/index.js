@@ -1,10 +1,10 @@
 import { isApiExternal } from '@gqlapp/core-common';
+import settings from '@gqlapp/config';
 
 import { writeSession, createSession, readSession } from './sessions';
 import AccessModule from '../AccessModule';
 import schema from './schema.graphql';
 import resolvers from './resolvers';
-import settings from '../../../../../settings';
 
 const grant = async ({ id }, req) => {
   const session = { ...req.session, id };
@@ -33,15 +33,13 @@ const attachSession = req => {
   }
 };
 
-const createContextFunc = async ({ req, graphqlContext, appContext }) => {
+const createContextFunc = async ({ req, appContext }) => {
   const { getIdentity } = appContext;
 
   attachSession(req);
 
-  if (getIdentity) {
-    const identity = graphqlContext.identity || (await getCurrentIdentity({ req, getIdentity }));
-
-    return { identity };
+  if (req && getIdentity) {
+    req.identity = req.identity || (await getCurrentIdentity({ req, getIdentity }));
   }
 };
 

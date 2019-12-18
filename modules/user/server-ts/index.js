@@ -1,10 +1,10 @@
 import ServerModule from '@gqlapp/module-server-ts';
+import settings from '@gqlapp/config';
 
 import confirmMiddleware from './confirm';
 import schema from './schema.graphql';
 import resolvers from './resolvers';
 import scopes from './scopes';
-import settings from '../../../settings';
 import User from './sql';
 import resources from './locales';
 import social from './social';
@@ -20,12 +20,14 @@ const getIdentity = (id, serial = '') => {
 
 const getHash = async id => (await User.getUserWithPassword(id)).passwordHash || '';
 
-const createContextFunc = ({ graphqlContext: { identity } }) => ({
+const createContextFunc = ({ req }) => ({
   User,
   auth: {
-    isAuthenticated: !!identity,
-    scope: identity && identity.role ? scopes[identity.role] : null
-  }
+    isAuthenticated: req && req.identity,
+    scope: req && req.identity && req.identity.role ? scopes[req.identity.role] : null
+  },
+  getIdentity,
+  getHash
 });
 
 const appContext = {
